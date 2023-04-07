@@ -1,72 +1,34 @@
+import React from 'react';
+import Blog from './blog';
 
-import { useState } from 'react';
+type Post = {
+  id: number;
+  title: string;
+};
 
-export default function Profile() {
+const Index = ({ posts }: { posts: Post[] }) => {
+  return (
+    <div>
+      <h1>My Blog</h1>
+      <Blog posts={posts} />
+    </div>
+  );
+};
 
-  const user = {
-    name: 'Hedy Lamarr',
-    imageUrl: 'https://source.unsplash.com/300x300',
-    imageSize: 90,
+// This function gets called at build time
+export async function getStaticProps() {
+  // Call an external API endpoint to get posts
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const allPosts = await res.json();
+
+  const posts = allPosts.slice(0, 20)
+  // By returning { props: { posts } }, the Index component
+  // will receive `posts` as a prop at build time
+  return {
+    props: {
+      posts,
+    },
   };
-
-  const isVisible = false;
-
-  const products = [
-    { title: 'Cabbage', id: 1 },
-    { title: 'Garlic', id: 2 },
-    { title: 'Apple', id: 3 },
-  ];
-
-  const listItems = products.map(product =>
-    <li key={product.id}>{product.title}</li>
-  )
-
-  const [count, setCount] = useState(0);
-
-  function handleClick() {
-    setCount(count + 1);
-  }
-
-  return (
-    <>
-      <h1>{user.name}</h1>
-      {isVisible ? (
-        <div>This is visible</div>
-
-      ) :
-        (
-          <div>is Visible disabled</div>
-        )}
-      <img
-        className="avatar"
-        src={user.imageUrl}
-        alt={'Photo of ' + user.name}
-        style={{
-          width: user.imageSize,
-          height: user.imageSize
-        }}
-      />
-
-      <ul>{listItems}</ul>
-
-      <MyButton count={count} onClick={handleClick} />
-      <MyButton count={count} onClick={handleClick} />
-      <MyButton count={count} onClick={handleClick} />
-    </>
-  );
 }
 
-
-interface MyButtonProps {
-  count: number;
-  onClick: () => void;
-}
-
-function MyButton({ count, onClick }: MyButtonProps) {
-  return (
-    <button onClick={onClick}>
-      Clicked {count} times
-    </button>
-  );
-}
-
+export default Index;
